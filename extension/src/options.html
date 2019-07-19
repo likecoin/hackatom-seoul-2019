@@ -1,17 +1,32 @@
 <head>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 	<script src="lib/vue.js"></script>
+	<script src="lib/vuetify.js"></script>
 </head>
 <body>
 	<div id="app">
-		<div>{{ address }}</div>
-		<table>
-		<tr><th>txHash</th><th>target</th><th>value</th></tr>
-		<tr v-for="t in civicTxList" v-key="t.txhash">
-			<td>{{ getTxHash(t) }}</td>
-			<td>{{ getTxTo(t) }}</td>
-			<td>{{ getTxAmount(t) }}</td>
-		</tr>
-		</table>
-	</div>
-<script src="options.js"></script>
+		<v-app>
+		<div>Current Address:
+			<a :href="`http://${BIG_DIPPER_HOST}/account/${address}`">
+				{{ address }}
+			</a>
+		</div>
+		  <v-data-table
+		    :headers="[ { key: 'time', value: 'timestamp' }, { key: 'target', value: 'tx.value.msg[0].value.to_address' }, { key: 'value', value: 'tx.value.msg[0].value.amount[0].amount' }, { key: 'txHash', value: 'txhash' } ]"
+		    :items="civicTxList"
+		    :rows-per-page-items="[-1]"
+		    class="elevation-1"
+		  >
+    	<template v-slot:items="t">
+			<td>{{ new Date(t.item.timestamp).toLocaleString() }}</td>
+			<td><a :href="`http://${BIG_DIPPER_HOST}/account/${getTxTo(t.item)}`">{{ getTxTo(t.item) }}</a></td>
+			<td>{{ getTxAmount(t.item) }}</td>
+			<td><a :href="`http://${BIG_DIPPER_HOST}/transactions/${getTxHash(t.item)}`"> View </a></td>
+		</template>
+	</v-data-table>
+		</div>
+		</v-app>
+	<script src="options.js"></script>
 </body>

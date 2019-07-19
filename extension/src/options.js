@@ -12,7 +12,11 @@ const app = new Vue({
   },
   computed: {
     civicTxList() {
-      return this.tx.filter(t => t.tx.type === 'auth/StdTx');
+      const { address } = this;
+      return this.tx
+        .filter(t => t.tx.type === 'auth/StdTx')
+        .filter(t => t.tx.value.msg[0].value.from_address === address)
+        .sort((a, b) => a.timestamp - b.timestamp);
     },
   },
   methods: {
@@ -29,5 +33,6 @@ const app = new Vue({
   data: {
     address: 'Hello Vue!',
     tx: [],
+    BIG_DIPPER_HOST: '35.226.174.222',
   },
 });
