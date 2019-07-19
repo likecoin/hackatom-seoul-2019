@@ -1,12 +1,14 @@
 package types
 
-// Query Result Payload for a get query
-type QueryResGet struct {
-	Author string `json:"author"`
-	Url    string `json:"url"`
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+type QueryResSubscriptionPool struct {
+	Value sdk.Coins `json:"value"`
 }
 
 // implement fmt.Stringer
-func (r QueryResGet) String() string {
-	return r.Url
+func (r QueryResSubscriptionPool) String() string {
+	return r.Value.String()
 }

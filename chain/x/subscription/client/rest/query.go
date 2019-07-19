@@ -12,12 +12,12 @@ import (
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
 	// Get all delegations from a delegator
 	r.HandleFunc(
-		"/contentdb/content/{url}",
-		contentHandlerFn(cliCtx, cdc),
+		"/subscription/subscription/{subscriber}/{channel_id}",
+		subscriptionHandlerFn(cliCtx, cdc),
 	).Methods("GET")
 }
 
 // HTTP request handler to query a delegator delegations
-func contentHandlerFn(cliCtx context.CLIContext, cdc *codec.Codec) http.HandlerFunc {
-	return queryContent(cliCtx, cdc, "custom/contentdb/content")
+func subscriptionHandlerFn(cliCtx context.CLIContext, cdc *codec.Codec) http.HandlerFunc {
+	return querySubscription(cliCtx, cdc, "custom/subscription/subscription")
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/likecoin/likechain/app"
+	"github.com/likecoin/hackatom-seoul-2019/chain/app"
 )
 
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.

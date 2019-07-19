@@ -23,6 +23,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+
+	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription"
+
+	// TODO: remove this DEBUG line
+	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/types"
 )
 
 const (
@@ -57,6 +62,7 @@ type LikeApp struct {
 	keyFeeCollection *sdk.KVStoreKey
 	keyParams        *sdk.KVStoreKey
 	tkeyParams       *sdk.TransientStoreKey
+	keySubscription  *sdk.KVStoreKey
 
 	// Manage getting and setting accounts
 	accountKeeper       auth.AccountKeeper
@@ -69,6 +75,7 @@ type LikeApp struct {
 	govKeeper           gov.Keeper
 	crisisKeeper        crisis.Keeper
 	paramsKeeper        params.Keeper
+	subscriptionKeeper  subscription.Keeper
 }
 
 // NewLikeApp returns a reference to an initialized LikeApp.
@@ -97,6 +104,7 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		keyFeeCollection: sdk.NewKVStoreKey(auth.FeeStoreKey),
 		keyParams:        sdk.NewKVStoreKey(params.StoreKey),
 		tkeyParams:       sdk.NewTransientStoreKey(params.TStoreKey),
+		keySubscription:  sdk.NewKVStoreKey(subscription.StoreKey),
 	}
 
 	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams)
@@ -162,6 +170,16 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		NewStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
 
+	app.subscriptionKeeper = subscription.NewKeeper(app.bankKeeper, app.keySubscription, app.cdc)
+
+	// TODO: remove this DEBUG line
+	app.subscriptionKeeper.SetPaymentHooks(subscription.PaymentHooks{
+		func(sub types.Subscription, ch types.Channel) {
+			fmt.Printf("DEBUG: In payment hook\n")
+			fmt.Printf("DEBUG: Hooked sub: %s\n", sub.String())
+		},
+	})
+
 	// register the crisis routes
 	bank.RegisterInvariants(&app.crisisKeeper, app.accountKeeper)
 	distr.RegisterInvariants(&app.crisisKeeper, app.distrKeeper, app.stakingKeeper)
@@ -174,7 +192,8 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		AddRoute(distr.RouterKey, distr.NewHandler(app.distrKeeper)).
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
-		AddRoute(crisis.RouterKey, crisis.NewHandler(app.crisisKeeper))
+		AddRoute(crisis.RouterKey, crisis.NewHandler(app.crisisKeeper)).
+		AddRoute(subscription.RouterKey, subscription.NewHandler(app.subscriptionKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
@@ -182,11 +201,12 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
 		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
-		AddRoute(mint.QuerierRoute, mint.NewQuerier(app.mintKeeper))
+		AddRoute(mint.QuerierRoute, mint.NewQuerier(app.mintKeeper)).
+		AddRoute(subscription.QuerierRoute, subscription.NewQuerier(app.subscriptionKeeper, app.cdc))
 
 	// initialize BaseApp
 	app.MountStores(app.keyMain, app.keyAccount, app.keyStaking, app.keyMint, app.keyDistr,
-		app.keySlashing, app.keyGov, app.keyFeeCollection, app.keyParams,
+		app.keySlashing, app.keyGov, app.keyFeeCollection, app.keyParams, app.keySubscription,
 		app.tkeyParams, app.tkeyStaking, app.tkeyDistr,
 	)
 	app.SetInitChainer(app.initChainer)
@@ -214,6 +234,7 @@ func MakeCodec() *codec.Codec {
 	gov.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	crisis.RegisterCodec(cdc)
+	subscription.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	return cdc
@@ -226,6 +247,8 @@ func (app *LikeApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) ab
 
 	// distribute rewards for the previous block
 	distr.BeginBlocker(ctx, req, app.distrKeeper)
+
+	subscription.BeginBlocker(ctx, app.subscriptionKeeper)
 
 	// slash anyone who double signed.
 	// NOTE: This should happen after distr.BeginBlocker so that
@@ -283,6 +306,7 @@ func (app *LikeApp) initFromGenesisState(ctx sdk.Context, genesisState GenesisSt
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	crisis.InitGenesis(ctx, app.crisisKeeper, genesisState.CrisisData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
+	subscription.InitGenesis(ctx, app.subscriptionKeeper, genesisState.SubscriptionData)
 
 	// validate genesis state
 	if err := LikeValidateGenesisState(genesisState); err != nil {

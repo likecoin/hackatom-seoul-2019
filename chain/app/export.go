@@ -17,6 +17,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+
+	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription"
 )
 
 // export the state of likechain for a genesis file
@@ -49,6 +51,7 @@ func (app *LikeApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteLis
 		gov.ExportGenesis(ctx, app.govKeeper),
 		crisis.ExportGenesis(ctx, app.crisisKeeper),
 		slashing.ExportGenesis(ctx, app.slashingKeeper),
+		subscription.ExportGenesis(ctx, app.subscriptionKeeper),
 	)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {

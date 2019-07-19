@@ -18,9 +18,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/likecoin/likechain/app"
+	"github.com/likecoin/hackatom-seoul-2019/chain/app"
 
-	likeInit "github.com/likecoin/likechain/cmd/liked/init"
+	likeInit "github.com/likecoin/hackatom-seoul-2019/chain/cmd/liked/init"
 )
 
 const flagInvCheckPeriod = "inv-check-period"

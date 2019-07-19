@@ -23,6 +23,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+
+	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription"
 )
 
 var (
@@ -33,34 +35,36 @@ var (
 
 // State to Unmarshal
 type GenesisState struct {
-	Accounts     []GenesisAccount      `json:"accounts"`
-	AuthData     auth.GenesisState     `json:"auth"`
-	BankData     bank.GenesisState     `json:"bank"`
-	StakingData  staking.GenesisState  `json:"staking"`
-	MintData     mint.GenesisState     `json:"mint"`
-	DistrData    distr.GenesisState    `json:"distr"`
-	GovData      gov.GenesisState      `json:"gov"`
-	CrisisData   crisis.GenesisState   `json:"crisis"`
-	SlashingData slashing.GenesisState `json:"slashing"`
-	GenTxs       []json.RawMessage     `json:"gentxs"`
+	Accounts         []GenesisAccount          `json:"accounts"`
+	AuthData         auth.GenesisState         `json:"auth"`
+	BankData         bank.GenesisState         `json:"bank"`
+	StakingData      staking.GenesisState      `json:"staking"`
+	MintData         mint.GenesisState         `json:"mint"`
+	DistrData        distr.GenesisState        `json:"distr"`
+	GovData          gov.GenesisState          `json:"gov"`
+	CrisisData       crisis.GenesisState       `json:"crisis"`
+	SlashingData     slashing.GenesisState     `json:"slashing"`
+	SubscriptionData subscription.GenesisState `json:"subscription"`
+	GenTxs           []json.RawMessage         `json:"gentxs"`
 }
 
 func NewGenesisState(accounts []GenesisAccount, authData auth.GenesisState,
 	bankData bank.GenesisState,
 	stakingData staking.GenesisState, mintData mint.GenesisState,
 	distrData distr.GenesisState, govData gov.GenesisState, crisisData crisis.GenesisState,
-	slashingData slashing.GenesisState) GenesisState {
+	slashingData slashing.GenesisState, subscriptionData subscription.GenesisState) GenesisState {
 
 	return GenesisState{
-		Accounts:     accounts,
-		AuthData:     authData,
-		BankData:     bankData,
-		StakingData:  stakingData,
-		MintData:     mintData,
-		DistrData:    distrData,
-		GovData:      govData,
-		CrisisData:   crisisData,
-		SlashingData: slashingData,
+		Accounts:         accounts,
+		AuthData:         authData,
+		BankData:         bankData,
+		StakingData:      stakingData,
+		MintData:         mintData,
+		DistrData:        distrData,
+		GovData:          govData,
+		CrisisData:       crisisData,
+		SlashingData:     slashingData,
+		SubscriptionData: subscriptionData,
 	}
 }
 
@@ -205,16 +209,17 @@ func LikeAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs []js
 // NewDefaultGenesisState generates the default state for likechain.
 func NewDefaultGenesisState() GenesisState {
 	return GenesisState{
-		Accounts:     nil,
-		AuthData:     auth.DefaultGenesisState(),
-		BankData:     bank.DefaultGenesisState(),
-		StakingData:  staking.DefaultGenesisState(),
-		MintData:     mint.DefaultGenesisState(),
-		DistrData:    distr.DefaultGenesisState(),
-		GovData:      gov.DefaultGenesisState(),
-		CrisisData:   crisis.DefaultGenesisState(),
-		SlashingData: slashing.DefaultGenesisState(),
-		GenTxs:       nil,
+		Accounts:         nil,
+		AuthData:         auth.DefaultGenesisState(),
+		BankData:         bank.DefaultGenesisState(),
+		StakingData:      staking.DefaultGenesisState(),
+		MintData:         mint.DefaultGenesisState(),
+		DistrData:        distr.DefaultGenesisState(),
+		GovData:          gov.DefaultGenesisState(),
+		CrisisData:       crisis.DefaultGenesisState(),
+		SlashingData:     slashing.DefaultGenesisState(),
+		SubscriptionData: subscription.DefaultGenesisState(),
+		GenTxs:           nil,
 	}
 }
 

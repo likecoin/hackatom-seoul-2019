@@ -28,7 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
-	"github.com/likecoin/likechain/app"
+	"github.com/likecoin/hackatom-seoul-2019/chain/app"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 )
 

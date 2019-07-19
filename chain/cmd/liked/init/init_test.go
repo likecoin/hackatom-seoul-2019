@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/mock"
-	"github.com/likecoin/likechain/app"
+	"github.com/likecoin/hackatom-seoul-2019/chain/app"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	abciServer "github.com/tendermint/tendermint/abci/server"

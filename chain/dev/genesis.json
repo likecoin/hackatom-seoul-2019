@@ -1,5 +1,5 @@
 {
-  "genesis_time": "2019-07-15T04:56:08.763570375Z",
+  "genesis_time": "2019-07-19T18:04:31.864167Z",
   "chain_id": "likechain-local-testnet",
   "consensus_params": {
     "block": {
@@ -123,6 +123,20 @@
       },
       "signing_infos": {},
       "missed_blocks": {}
+    },
+    "subscription": {
+      "channels": [
+        {
+          "id": "1",
+          "price": [
+            {
+              "denom": "nanolike",
+              "amount": "100000000000"
+            }
+          ],
+          "period_blocks": "12"
+        }
+      ]
     },
     "gentxs": null
   }

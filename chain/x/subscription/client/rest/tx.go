@@ -9,30 +9,29 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/types"
 )
 
-func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec, kb keys.Keybase) {
+func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
 	r.HandleFunc(
-		"/contentdb/upload",
-		postUploadHandlerFn(cdc, kb, cliCtx),
+		"/subscription/subscribe",
+		postSubscribeHandlerFn(cdc, cliCtx),
 	).Methods("POST")
 }
 
 type (
-	UploadContentRequest struct {
-		BaseReq rest.BaseReq   `json:"base_req"`
-		Author  sdk.AccAddress `json:"author"` // in bech32
-		Url     string         `json:"url"`
+	SubscribeRequest struct {
+		BaseReq    rest.BaseReq   `json:"base_req"`
+		Subscriber sdk.AccAddress `json:"subscriber"` // in bech32
+		ChannelID  uint64         `json:"channel_id"`
 	}
 )
 
-func postUploadHandlerFn(cdc *codec.Codec, kb keys.Keybase, cliCtx context.CLIContext) http.HandlerFunc {
+func postSubscribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req UploadContentRequest
+		var req SubscribeRequest
 
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
 			return
@@ -43,9 +42,9 @@ func postUploadHandlerFn(cdc *codec.Codec, kb keys.Keybase, cliCtx context.CLICo
 			return
 		}
 
-		msg := types.MsgUploadContent{
-			Author: req.Author,
-			Url:    req.Url,
+		msg := types.MsgSubscribe{
+			Subscriber: req.Subscriber,
+			ChannelID:  req.ChannelID,
 		}
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -58,8 +57,8 @@ func postUploadHandlerFn(cdc *codec.Codec, kb keys.Keybase, cliCtx context.CLICo
 			return
 		}
 
-		if !bytes.Equal(fromAddr, req.Author) {
-			rest.WriteErrorResponse(w, http.StatusUnauthorized, "author must be sender")
+		if !bytes.Equal(fromAddr, req.Subscriber) {
+			rest.WriteErrorResponse(w, http.StatusUnauthorized, "subscriber must be transaction sender")
 			return
 		}
 

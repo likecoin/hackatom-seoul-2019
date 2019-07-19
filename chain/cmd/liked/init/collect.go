@@ -17,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/likecoin/likechain/app"
+	"github.com/likecoin/hackatom-seoul-2019/chain/app"
 )
 
 const (

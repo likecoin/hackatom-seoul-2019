@@ -1,4 +1,4 @@
-package contentdb
+package subscription
 
 import (
 	"fmt"
@@ -10,34 +10,34 @@ import (
 )
 
 const (
-	QueryContent = "content"
+	QuerySubscription = "subscription"
 )
 
 func NewQuerier(k Keeper, cdc *codec.Codec) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
 		switch path[0] {
-		case QueryContent:
-			return queryContent(ctx, cdc, req, k)
+		case QuerySubscription:
+			return querySubscription(ctx, cdc, req, k)
 		default:
-			return nil, sdk.ErrUnknownRequest("unknown staking query endpoint")
+			return nil, sdk.ErrUnknownRequest("unknown subscription query endpoint")
 		}
 	}
 }
 
-func queryContent(ctx sdk.Context, cdc *codec.Codec, req abci.RequestQuery, k Keeper) ([]byte, sdk.Error) {
-	var params QueryContentParams
+func querySubscription(ctx sdk.Context, cdc *codec.Codec, req abci.RequestQuery, k Keeper) ([]byte, sdk.Error) {
+	var params QuerySubscriptionParams
 
 	err := cdc.UnmarshalJSON(req.Data, &params)
 	if err != nil {
 		return nil, sdk.ErrInternal(fmt.Sprintf("failed to parse params: %s", err))
 	}
 
-	content := k.GetContent(ctx, params.Url)
-	if content.Author.Empty() {
+	sub := k.GetSubscription(ctx, params.Subscriber, params.ChannelID)
+	if sub.ChannelID != params.ChannelID {
 		return []byte("null"), nil
 	}
 
-	res, err := codec.MarshalJSONIndent(cdc, content)
+	res, err := codec.MarshalJSONIndent(cdc, sub)
 	if err != nil {
 		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("failed to JSON marshal result: %s", err.Error()))
 	}
@@ -45,6 +45,7 @@ func queryContent(ctx sdk.Context, cdc *codec.Codec, req abci.RequestQuery, k Ke
 	return res, nil
 }
 
-type QueryContentParams struct {
-	Url string
+type QuerySubscriptionParams struct {
+	Subscriber sdk.AccAddress `json:"subscriber"`
+	ChannelID  uint64         `json:"channel_id"`
 }

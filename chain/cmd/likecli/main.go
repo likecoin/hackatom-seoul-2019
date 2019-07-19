@@ -20,7 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/likecoin/likechain/app"
+	"github.com/likecoin/hackatom-seoul-2019/chain/app"
 
 	at "github.com/cosmos/cosmos-sdk/x/auth"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
@@ -43,6 +43,10 @@ import (
 	mintclient "github.com/cosmos/cosmos-sdk/x/mint/client"
 	slashingclient "github.com/cosmos/cosmos-sdk/x/slashing/client"
 	stakingclient "github.com/cosmos/cosmos-sdk/x/staking/client"
+
+	sub "github.com/likecoin/hackatom-seoul-2019/chain/x/subscription"
+	subscriptionClient "github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/client"
+	subscription "github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/client/rest"
 )
 
 func main() {
@@ -72,6 +76,7 @@ func main() {
 		mintclient.NewModuleClient(mint.StoreKey, cdc),
 		slashingclient.NewModuleClient(sl.StoreKey, cdc),
 		crisisclient.NewModuleClient(sl.StoreKey, cdc),
+		subscriptionClient.NewModuleClient(sub.StoreKey, cdc),
 	}
 
 	rootCmd := &cobra.Command{
@@ -172,6 +177,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	mintrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	subscription.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 }
 
 func initConfig(cmd *cobra.Command) error {

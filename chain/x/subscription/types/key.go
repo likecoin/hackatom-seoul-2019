@@ -1,7 +1,8 @@
 package types
 
 const (
-	ModuleName = "contentdb"
-	StoreKey   = ModuleName
-	RouterKey  = ModuleName
+	ModuleName   = "subscription"
+	StoreKey     = ModuleName
+	RouterKey    = ModuleName
+	QuerierRoute = ModuleName
 )
