@@ -37,10 +37,10 @@ func handleMsgSubscribe(ctx sdk.Context, msg types.MsgSubscribe, keeper Keeper) 
 		Remaining:        ch.Price,
 		NextPaymentBlock: ctx.BlockHeight() + ch.PeriodBlocks,
 	}
-	keeper.SetSubscription(ctx, sub)
 	for _, hook := range keeper.paymentHooks {
-		hook(sub, ch)
+		hook(&sub, ch)
 	}
+	keeper.SetSubscription(ctx, sub)
 	tags := sdk.NewTags(
 		"subscriber", msg.Subscriber.String(),
 		"subscription_payment_channel", fmt.Sprintf("%d", ch.ID),
@@ -61,13 +61,10 @@ func BeginBlocker(ctx sdk.Context, keeper Keeper) {
 				sub.Remaining = sub.Remaining.Add(ch.Price)
 			}
 			sub.NextPaymentBlock = ctx.BlockHeight() + ch.PeriodBlocks
-			keeper.SetSubscription(ctx, sub)
-			// TODO: remove this DEBUG line
-			fmt.Printf("DEBUG: Making payment\n")
-			fmt.Printf("DEBUG: New sub: %s\n", sub.String())
 			for _, hook := range keeper.paymentHooks {
-				hook(sub, ch)
+				hook(&sub, ch)
 			}
+			keeper.SetSubscription(ctx, sub)
 		}
 		return false
 	})

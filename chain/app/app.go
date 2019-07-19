@@ -25,9 +25,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription"
-
-	// TODO: remove this DEBUG line
-	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/types"
 )
 
 const (
@@ -172,12 +169,8 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 
 	app.subscriptionKeeper = subscription.NewKeeper(app.bankKeeper, app.keySubscription, app.cdc)
 
-	// TODO: remove this DEBUG line
 	app.subscriptionKeeper.SetPaymentHooks(subscription.PaymentHooks{
-		func(sub types.Subscription, ch types.Channel) {
-			fmt.Printf("DEBUG: In payment hook\n")
-			fmt.Printf("DEBUG: Hooked sub: %s\n", sub.String())
-		},
+		// TODO
 	})
 
 	// register the crisis routes
