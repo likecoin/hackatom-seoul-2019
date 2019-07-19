@@ -1,0 +1,25 @@
+
+{
+  "manifest_version": 2,
+  "name": "Cosmos Liker",
+  "description": "This extension allows the user to pay in a civic way.",
+  "version": "1.0",
+  "options_page": "options.html",
+  "browser_action": {
+    "default_icon": "icon.png",
+  },
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://*"],
+      "js": ["contentscript.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+}
