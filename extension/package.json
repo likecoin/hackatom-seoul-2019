@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@lunie/cosmos-api": "^0.1.1",
     "@lunie/cosmos-keys": "^0.1.0",
+    "babel-polyfill": "^6.26.0",
+    "buffer": "^5.2.1",
     "rollup": "^1.17.0",
     "rollup-plugin-commonjs": "^10.0.1",
     "rollup-plugin-node-resolve": "^5.2.0"

@@ -7,8 +7,7 @@ export default {
     file: 'src/background.dist.js',
     format: 'esm',
   },
-  // always put chromeExtension() before other plugins
-  plugins: [resolve(), commonjs({
+  plugins: [resolve({ preferBuiltins: false }), commonjs({
     namedExports: {
       '@lunie/cosmos-keys': ['getSeed', 'getNewWalletFromSeed', 'signWithPrivateKey'],
     },
