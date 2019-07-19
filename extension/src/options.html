@@ -1,1 +1,17 @@
-<body></body>
+<head>
+	<script src="lib/vue.js"></script>
+</head>
+<body>
+	<div id="app">
+		<div>{{ address }}</div>
+		<table>
+		<tr><th>txHash</th><th>target</th><th>value</th></tr>
+		<tr v-for="t in civicTxList" v-key="t.txhash">
+			<td>{{ getTxHash(t) }}</td>
+			<td>{{ getTxTo(t) }}</td>
+			<td>{{ getTxAmount(t) }}</td>
+		</tr>
+		</table>
+	</div>
+<script src="options.js"></script>
+</body>

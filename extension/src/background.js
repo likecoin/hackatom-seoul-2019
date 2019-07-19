@@ -68,13 +68,24 @@ async function transfer(transferTo, transferValue = 1) {
   sendTx(msgPromise);
 }
 
-async function notify(payload) {
+function notify(payload, sender, sendResponse) {
   if (payload.action === 'civicLike') {
     // TODO: sign and broadcast
     const { wallet, sourceURL } = payload;
     console.log(`liking ${wallet} ${sourceURL}`);
-    await transfer(wallet);
+    transfer(wallet).then(sendResponse({}));
+    return true;
   }
+  if (payload.action === 'fetchInfo') {
+    api.get.txs(globalAddress).then((tx) => {
+      sendResponse({
+        tx,
+        address: globalAddress,
+      });
+    });
+    return true;
+  }
+  return false;
 }
 chrome.runtime.onMessage.addListener(notify);
 
