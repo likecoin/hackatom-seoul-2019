@@ -13,7 +13,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["file://*", "http://*/*", "https://*/*"],
       "js": ["contentscript.js"],
       "run_at": "document_end"
     }

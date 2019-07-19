@@ -47,15 +47,21 @@ function parseMnemonic(mnemonic) {
   };
 }
 
+function notify(payload) {
+  if (payload.action === 'civicLike') {
+    // TODO: sign and broadcast
+    const { wallet, sourceURL } = payload;
+    console.log(`liking ${wallet} ${sourceURL}`);
+  }
+}
+chrome.runtime.onMessage.addListener(notify);
+
 async function main() {
   let mnemonic = await getStorage('wallet');
   if (!mnemonic) {
-    console.log('123');
-    console.log(mnemonic);
     mnemonic = getSeed();
     await setStorage('wallet', mnemonic);
   }
-  console.log(mnemonic);
   parseMnemonic(mnemonic);
 }
 
