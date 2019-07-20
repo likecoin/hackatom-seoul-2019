@@ -1,6 +1,8 @@
 package civicliker
 
 import (
+	"github.com/tendermint/tendermint/crypto/tmhash"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/likecoin/hackatom-seoul-2019/chain/x/civicliker/types"
 
@@ -25,11 +27,12 @@ func handleMsgLike(ctx sdk.Context, msg types.MsgLike, keeper Keeper) sdk.Result
 		return sdk.ErrUnauthorized("Unsubscribed user cannot like").Result()
 	}
 	r := types.LikeRecord{
-		Liker: msg.Liker,
-		Likee: msg.Likee,
-		Url:   msg.Url,
-		Count: msg.Count,
-		Time:  ctx.BlockHeader().Time,
+		Liker:  msg.Liker,
+		Likee:  msg.Likee,
+		Url:    msg.Url,
+		Count:  msg.Count,
+		Time:   ctx.BlockHeader().Time,
+		TxHash: tmhash.Sum(ctx.TxBytes()),
 	}
 	likerStr := msg.Liker.String()
 	cache := keeper.GetBlockLikeRecordsCache()
