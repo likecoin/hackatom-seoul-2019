@@ -3,18 +3,13 @@ import * as cosmosKeys from '@lunie/cosmos-keys';
 import Cosmos from '@lunie/cosmos-api';
 import { Buffer } from 'buffer';
 
-const CHAIN_ID = 'likechain-cosmos-testnet-2';
-const DENOM = 'nanolike';
+const CHAIN_ID = 'likechain-local-testnet';
 
 const { getSeed, getNewWalletFromSeed, signWithPrivateKey } = cosmosKeys;
-const api = new Cosmos('http://35.226.174.222:1317', CHAIN_ID);
+const api = new Cosmos('http://10.100.0.110:1317', CHAIN_ID);
 
 let globalSigner;
 let globalAddress;
-
-function likeToNanolike(value) {
-  return `${Number.parseInt(value, 10).toString()}000000000`;
-}
 
 function normalizeAddress(address) {
   return address.replace(/\s/g, '');
@@ -49,22 +44,48 @@ function parseMnemonic(mnemonic) {
   };
 }
 
-function likeToAmount(value) {
-  return { denom: DENOM, amount: likeToNanolike(value) };
-}
 async function sendTx(msgCallPromise) {
-  const { simulate, send } = await msgCallPromise;
-  const gas = (await simulate({})).toString();
-  const { included } = await send({ gas }, globalSigner);
+  const { send } = await msgCallPromise;
+  const res = await send({ gas: '200000' }, globalSigner);
+  const { included } = res;
   await included();
 }
 
-async function transfer(transferTo, transferValue = 1) {
+async function MsgLIKE(
+  senderAddress,
+  {
+    toAddress,
+    sourceURL,
+    likeCount,
+  },
+) {
+  const message = {
+    type: 'civicliker/like',
+    value: {
+      liker: senderAddress,
+      likee: toAddress,
+      url: sourceURL,
+      count: likeCount,
+    },
+  };
+  return {
+    message,
+    simulate: ({ memo = undefined }) => api.simulate(senderAddress, { message, memo }),
+    send: (
+      { gas, gasPrices, memo = undefined },
+      signer,
+    ) => api.send(senderAddress, { gas, gasPrices, memo }, message, signer),
+  };
+}
+
+async function like(transferTo, sourceURL, likeCount = '1') {
   const from = normalizeAddress(globalAddress);
   const toAddress = normalizeAddress(transferTo);
-  const value = transferValue;
-  const amount = likeToAmount(value);
-  const msgPromise = api.MsgSend(from, { toAddress, amounts: [amount] });
+  const msgPromise = MsgLIKE(from, {
+    toAddress,
+    sourceURL,
+    likeCount,
+  });
   sendTx(msgPromise);
 }
 
@@ -73,16 +94,22 @@ function notify(payload, sender, sendResponse) {
     // TODO: sign and broadcast
     const { wallet, sourceURL } = payload;
     console.log(`liking ${wallet} ${sourceURL}`);
-    transfer(wallet).then(sendResponse({}));
+    like(wallet, sourceURL).then(sendResponse({}));
     return true;
   }
   if (payload.action === 'fetchInfo') {
-    api.get.txs(globalAddress).then((tx) => {
+    Promise.all([
+      fetch(`http://10.100.0.110:1317/civicliker/like-history/${globalAddress}`)
+        .then(resp => resp.json()),
+      fetch(`http://10.100.0.110:1317/subscription/subscription/${globalAddress}/1`)
+        .then(resp => resp.json()),
+    ]).then((results) => {
       sendResponse({
-        tx,
-        address: globalAddress,
+        LikedList: results[0],
+        LIKE: results[1],
       });
     });
+
     return true;
   }
   return false;

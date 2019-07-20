@@ -31,8 +31,8 @@ const app = new Vue({
     },
   },
   data: {
-    address: 'Hello Vue!',
+    address: 'Loading...',
     tx: [],
-    BIG_DIPPER_HOST: '35.226.174.222',
+    BIG_DIPPER_HOST: '10.100.0.110',
   },
 });
