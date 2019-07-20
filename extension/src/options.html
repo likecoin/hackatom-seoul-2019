@@ -11,7 +11,8 @@
       <v-toolbar class="teal white--text" app>
         <v-toolbar-title>Cosmos Liker</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-toolbar-item>Current Address:
+        <v-toolbar-item>LIKE: {{ remainingLIKE.amount }} {{ remainingLIKE.denom }}</v-toolbar-item>
+        <v-toolbar-item> Current Address:
           <a :href="`http://${BIG_DIPPER_HOST}/account/${address}`">
             {{ address }}
           </a>
@@ -23,14 +24,23 @@
           </v-progress-linear>
           <v-data-table
             v-else
-            :headers="[ { text: 'time', value: 'timestamp' }, { text: 'target', value: 'tx.value.msg[0].value.to_address' }, { text: 'value', value: 'tx.value.msg[0].value.amount[0].amount' }, { text: 'txHash', value: 'txhash' } ]"
+            :headers="[
+              { text: 'Time', value: 'time' },
+              { text: 'Content', value: 'url' },
+              { text: 'Author', value: 'tx.likee' },
+              { text: 'like', value: 'tx.count' },
+              { text: 'LIKE', value: 'tx.amount' },
+              { text: 'txHash', value: 'txhash' },
+            ]"
             :items="civicTxList"
             :rows-per-page-items="[-1]"
             class="elevation-1"
           >
             <template v-slot:items="t">
-              <td>{{ new Date(t.item.timestamp).toLocaleString() }}</td>
+              <td>{{ t.item.time }}</td>
+              <td><a :href="t.item.url">{{ t.item.url }}</a></td>
               <td><a :href="`http://${BIG_DIPPER_HOST}/account/${getTxTo(t.item)}`">{{ getTxTo(t.item) }}</a></td>
+              <td>{{ t.item.count }}</td>
               <td>{{ getTxAmount(t.item) }}</td>
               <td><a :href="`http://${BIG_DIPPER_HOST}/transactions/${getTxHash(t.item)}`"> View </a></td>
             </template>

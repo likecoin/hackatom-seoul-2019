@@ -126,7 +126,7 @@ async function main() {
   const { address, signer } = parseMnemonic(mnemonic);
   globalAddress = address;
   globalSigner = signer;
-  console.log(await api.get.txs(address));
+  // console.log(await api.get.txs(address));
 }
 
 main();

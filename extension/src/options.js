@@ -1,38 +1,52 @@
 const app = new Vue({
   el: '#app',
   created() {
-    chrome.runtime.sendMessage({
-      action: 'fetchInfo',
-    }, (response) => {
-      console.log(response);
-      const { tx, address } = response;
-      this.address = address;
-      this.tx = tx;
-    });
+    this.updateInfo();
+    this.updateTimer = setInterval(() => this.updateInfo(), 5000);
+  },
+  beforeDestroy() {
+    if (this.updateTimer) clearInterval(this.updateTimer);
   },
   computed: {
     civicTxList() {
-      const { address } = this;
       return this.tx
-        .filter(t => t.tx.type === 'auth/StdTx')
-        .filter(t => t.tx.value.msg[0].value.from_address === address)
-        .sort((a, b) => a.timestamp - b.timestamp);
+        .sort((a, b) => a.time - b.time);
     },
   },
   methods: {
+    updateInfo() {
+      chrome.runtime.sendMessage({
+        action: 'fetchInfo',
+      }, (response) => {
+        const { LIKE, LikedList } = response;
+        console.log(LIKE);
+        console.log(LikedList);
+        const {
+          subscriber,
+          remaining,
+        } = LIKE;
+        this.address = subscriber;
+        this.remainingLIKE = remaining;
+        this.tx = LikedList;
+      });
+    },
     getTxHash(tx) {
-      return tx.txhash;
+      return tx.tx_hash;
     },
     getTxTo(tx) {
-      return tx.tx.value.msg[0].value.to_address;
+      return tx.likee;
     },
     getTxAmount(tx) {
-      return tx.tx.value.msg[0].value.amount[0].amount;
+      return tx.coin_distributed.amount;
+    },
+    getLikeCount(tx) {
+      return tx.count;
     },
   },
   data: {
     address: 'Loading...',
+    remainingLIKE: 'Loading...',
     tx: [],
-    BIG_DIPPER_HOST: '10.100.0.110',
+    BIG_DIPPER_HOST: '10.100.0.110:3000',
   },
 });
