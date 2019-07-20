@@ -44,6 +44,10 @@ const app = new Vue({
     },
   },
   data: {
+    pagination: {
+      descending: true,
+      rowsPerPage: -1,
+    },
     address: 'Loading...',
     remainingLIKE: 'Loading...',
     tx: [],

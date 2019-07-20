@@ -78,13 +78,13 @@ async function MsgLIKE(
   };
 }
 
-async function like(transferTo, sourceURL, likeCount = '1') {
+async function like(transferTo, sourceURL, likeCount = 1) {
   const from = normalizeAddress(globalAddress);
   const toAddress = normalizeAddress(transferTo);
   const msgPromise = MsgLIKE(from, {
     toAddress,
     sourceURL,
-    likeCount,
+    likeCount: likeCount.toString(),
   });
   sendTx(msgPromise);
 }
@@ -92,9 +92,9 @@ async function like(transferTo, sourceURL, likeCount = '1') {
 function notify(payload, sender, sendResponse) {
   if (payload.action === 'civicLike') {
     // TODO: sign and broadcast
-    const { wallet, sourceURL } = payload;
+    const { wallet, sourceURL, count } = payload;
     console.log(`liking ${wallet} ${sourceURL}`);
-    like(wallet, sourceURL).then(sendResponse({}));
+    like(wallet, sourceURL, count).then(sendResponse({}));
     return true;
   }
   if (payload.action === 'fetchInfo') {

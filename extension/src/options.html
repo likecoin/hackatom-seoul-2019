@@ -33,7 +33,7 @@
               { text: 'txHash', value: 'txhash' },
             ]"
             :items="civicTxList"
-            :rows-per-page-items="[-1]"
+            :pagination.sync="pagination"
             class="elevation-1"
           >
             <template v-slot:items="t">

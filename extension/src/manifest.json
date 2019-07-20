@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "matches": ["file://*", "http://*/*", "https://*/*"],
-      "js": ["contentscript.js"],
+      "js": ["lib/lodash.min.js", "contentscript.js"],
       "run_at": "document_end"
     }
   ],
