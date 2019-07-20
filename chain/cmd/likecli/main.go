@@ -47,6 +47,10 @@ import (
 	sub "github.com/likecoin/hackatom-seoul-2019/chain/x/subscription"
 	subscriptionClient "github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/client"
 	subscription "github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/client/rest"
+
+	cvl "github.com/likecoin/hackatom-seoul-2019/chain/x/civicliker"
+	civiclikerClient "github.com/likecoin/hackatom-seoul-2019/chain/x/civicliker/client"
+	civicliker "github.com/likecoin/hackatom-seoul-2019/chain/x/civicliker/client/rest"
 )
 
 func main() {
@@ -77,6 +81,7 @@ func main() {
 		slashingclient.NewModuleClient(sl.StoreKey, cdc),
 		crisisclient.NewModuleClient(sl.StoreKey, cdc),
 		subscriptionClient.NewModuleClient(sub.StoreKey, cdc),
+		civiclikerClient.NewModuleClient(cvl.StoreKey, cdc),
 	}
 
 	rootCmd := &cobra.Command{
@@ -178,6 +183,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	mintrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	subscription.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	civicliker.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 }
 
 func initConfig(cmd *cobra.Command) error {

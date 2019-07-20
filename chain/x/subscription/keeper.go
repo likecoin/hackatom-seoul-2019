@@ -11,7 +11,7 @@ import (
 	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription/types"
 )
 
-type PaymentHook func(sub *types.Subscription, ch types.Channel)
+type PaymentHook func(ctx sdk.Context, sub *types.Subscription, ch types.Channel)
 type PaymentHooks []PaymentHook
 
 type Keeper struct {

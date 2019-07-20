@@ -7,9 +7,9 @@ import (
 )
 
 type Channel struct {
-	ID           uint64    `json:"id"`
-	Price        sdk.Coins `json:"price"`
-	PeriodBlocks int64     `json:"period_blocks"`
+	ID           uint64   `json:"id"`
+	Price        sdk.Coin `json:"price"`
+	PeriodBlocks int64    `json:"period_blocks"`
 }
 
 func (ch Channel) String() string {
@@ -21,7 +21,7 @@ Period: %d blocks`, ch.ID, ch.Price, ch.PeriodBlocks)
 type Subscription struct {
 	Subscriber       sdk.AccAddress `json:"subscriber"`
 	ChannelID        uint64         `json:"channel_id"`
-	Remaining        sdk.Coins      `json:"remaining"`
+	Remaining        sdk.Coin       `json:"remaining"`
 	NextPaymentBlock int64          `json:"next_payment_block"`
 }
 

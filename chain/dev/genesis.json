@@ -128,12 +128,7 @@
       "channels": [
         {
           "id": "1",
-          "price": [
-            {
-              "denom": "nanolike",
-              "amount": "100000000000"
-            }
-          ],
+          "price": { "denom": "nanolike", "amount": "100000000000" },
           "period_blocks": "12"
         }
       ]

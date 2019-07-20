@@ -14,10 +14,8 @@ func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Channels: []types.Channel{
 			types.Channel{
-				ID: 1,
-				Price: sdk.Coins{
-					sdk.NewCoin("nanolike", sdk.NewInt(100000000000)), // 100 LIKE
-				},
+				ID:           1,
+				Price:        sdk.NewCoin("nanolike", sdk.NewInt(100000000000)), // 100 LIKE
 				PeriodBlocks: 12,
 			},
 		},

@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
+	"github.com/likecoin/hackatom-seoul-2019/chain/x/civicliker"
 	"github.com/likecoin/hackatom-seoul-2019/chain/x/subscription"
 )
 
@@ -60,6 +61,7 @@ type LikeApp struct {
 	keyParams        *sdk.KVStoreKey
 	tkeyParams       *sdk.TransientStoreKey
 	keySubscription  *sdk.KVStoreKey
+	keyCivicliker    *sdk.KVStoreKey
 
 	// Manage getting and setting accounts
 	accountKeeper       auth.AccountKeeper
@@ -73,6 +75,7 @@ type LikeApp struct {
 	crisisKeeper        crisis.Keeper
 	paramsKeeper        params.Keeper
 	subscriptionKeeper  subscription.Keeper
+	civiclikerKeeper    civicliker.Keeper
 }
 
 // NewLikeApp returns a reference to an initialized LikeApp.
@@ -102,6 +105,7 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		keyParams:        sdk.NewKVStoreKey(params.StoreKey),
 		tkeyParams:       sdk.NewTransientStoreKey(params.TStoreKey),
 		keySubscription:  sdk.NewKVStoreKey(subscription.StoreKey),
+		keyCivicliker:    sdk.NewKVStoreKey(civicliker.StoreKey),
 	}
 
 	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams)
@@ -168,9 +172,12 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	)
 
 	app.subscriptionKeeper = subscription.NewKeeper(app.bankKeeper, app.keySubscription, app.cdc)
+	app.civiclikerKeeper = civicliker.NewKeeper(
+		app.bankKeeper, app.subscriptionKeeper, app.keyCivicliker, app.cdc,
+	)
 
 	app.subscriptionKeeper.SetPaymentHooks(subscription.PaymentHooks{
-		// TODO
+		civicliker.GetPaymentHook(app.civiclikerKeeper),
 	})
 
 	// register the crisis routes
@@ -186,7 +193,8 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute(crisis.RouterKey, crisis.NewHandler(app.crisisKeeper)).
-		AddRoute(subscription.RouterKey, subscription.NewHandler(app.subscriptionKeeper))
+		AddRoute(subscription.RouterKey, subscription.NewHandler(app.subscriptionKeeper)).
+		AddRoute(civicliker.RouterKey, civicliker.NewHandler(app.civiclikerKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
@@ -195,11 +203,13 @@ func NewLikeApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
 		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute(mint.QuerierRoute, mint.NewQuerier(app.mintKeeper)).
-		AddRoute(subscription.QuerierRoute, subscription.NewQuerier(app.subscriptionKeeper, app.cdc))
+		AddRoute(subscription.QuerierRoute, subscription.NewQuerier(app.subscriptionKeeper, app.cdc)).
+		AddRoute(civicliker.QuerierRoute, civicliker.NewQuerier(app.civiclikerKeeper, app.cdc))
 
 	// initialize BaseApp
 	app.MountStores(app.keyMain, app.keyAccount, app.keyStaking, app.keyMint, app.keyDistr,
-		app.keySlashing, app.keyGov, app.keyFeeCollection, app.keyParams, app.keySubscription,
+		app.keySlashing, app.keyGov, app.keyFeeCollection, app.keyParams,
+		app.keySubscription, app.keyCivicliker,
 		app.tkeyParams, app.tkeyStaking, app.tkeyDistr,
 	)
 	app.SetInitChainer(app.initChainer)
@@ -228,6 +238,7 @@ func MakeCodec() *codec.Codec {
 	auth.RegisterCodec(cdc)
 	crisis.RegisterCodec(cdc)
 	subscription.RegisterCodec(cdc)
+	civicliker.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	return cdc
@@ -258,6 +269,7 @@ func (app *LikeApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) ab
 // application updates every end block
 // nolint: unparam
 func (app *LikeApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	civicliker.EndBlocker(ctx, app.civiclikerKeeper)
 	tags := gov.EndBlocker(ctx, app.govKeeper)
 	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)

@@ -27,7 +27,7 @@ func handleMsgSubscribe(ctx sdk.Context, msg types.MsgSubscribe, keeper Keeper) 
 	if keeper.HasSubscription(ctx, msg.Subscriber, msg.ChannelID) {
 		return sdk.ErrUnauthorized("Already subscribed").Result()
 	}
-	_, _, err := keeper.coinKeeper.SubtractCoins(ctx, msg.Subscriber, ch.Price)
+	_, _, err := keeper.coinKeeper.SubtractCoins(ctx, msg.Subscriber, sdk.NewCoins(ch.Price))
 	if err != nil {
 		return sdk.ErrInsufficientCoins("Not enough balance for subscription payment").Result()
 	}
@@ -38,7 +38,7 @@ func handleMsgSubscribe(ctx sdk.Context, msg types.MsgSubscribe, keeper Keeper) 
 		NextPaymentBlock: ctx.BlockHeight() + ch.PeriodBlocks,
 	}
 	for _, hook := range keeper.paymentHooks {
-		hook(&sub, ch)
+		hook(ctx, &sub, ch)
 	}
 	keeper.SetSubscription(ctx, sub)
 	tags := sdk.NewTags(
@@ -56,13 +56,13 @@ func BeginBlocker(ctx sdk.Context, keeper Keeper) {
 	keeper.IterateSubscriptions(ctx, func(index int64, sub types.Subscription) (stop bool) {
 		if sub.NextPaymentBlock == height {
 			ch := keeper.GetChannel(ctx, sub.ChannelID)
-			_, _, err := keeper.coinKeeper.SubtractCoins(ctx, sub.Subscriber, ch.Price)
+			_, _, err := keeper.coinKeeper.SubtractCoins(ctx, sub.Subscriber, sdk.NewCoins(ch.Price))
 			if err == nil {
 				sub.Remaining = sub.Remaining.Add(ch.Price)
 			}
-			sub.NextPaymentBlock = ctx.BlockHeight() + ch.PeriodBlocks
+			sub.NextPaymentBlock = height + ch.PeriodBlocks
 			for _, hook := range keeper.paymentHooks {
-				hook(&sub, ch)
+				hook(ctx, &sub, ch)
 			}
 			keeper.SetSubscription(ctx, sub)
 		}
